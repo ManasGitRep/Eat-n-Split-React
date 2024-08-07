@@ -20,20 +20,29 @@ const initialFriends = [
     balance: 0,
   },
 ];
+
 export default function App() {
+  const [friends, setFriends] = useState(initialFriends);
   const [showAddFriend, setShowAddFriend] = useState(false);
-  function handleAddFriend() {
-    setShowAddFriend((showAddFriend) => !showAddFriend);
+
+  function toggleAddFriend() {
+    setShowAddFriend((prevShowAddFriend) => !prevShowAddFriend);
   }
+
+  function handleAddFriend(friend) {
+    setFriends((prevFriends) => [...prevFriends, friend]);
+    setShowAddFriend(false);
+  }
+
   return (
     <>
       <h1>Eat-N-Split</h1>
       <div className="app">
         <div className="sidebar">
-          <FriendsList />
-          {showAddFriend && <FormAddFriend />}
-          <Button onClick={handleAddFriend}>
-            {showAddFriend === false ? "Add Friend" : "Close"}
+          <FriendsList friends={friends} />
+          {showAddFriend && <FormAddFriend onAddFriend={handleAddFriend} />}
+          <Button onClick={toggleAddFriend}>
+            {showAddFriend ? "Close" : "Add Friend"}
           </Button>
         </div>
         <FormSplitBill />
@@ -49,8 +58,8 @@ function Button({ children, onClick }) {
     </button>
   );
 }
-function FriendsList() {
-  const friends = initialFriends;
+
+function FriendsList({ friends }) {
   return (
     <ul>
       {friends.map((friend) => (
@@ -72,22 +81,51 @@ function Friend({ friend }) {
       )}
       {friend.balance > 0 && (
         <p className="green">
-          {friend.name} ows you ${Math.abs(friend.balance)}
+          {friend.name} owes you ${Math.abs(friend.balance)}
         </p>
       )}
-      {friend.balance === 0 && <p>You {friend.name} are even</p>}
+      {friend.balance === 0 && <p>You and {friend.name} are even</p>}
       <Button>Select</Button>
     </li>
   );
 }
-function FormAddFriend() {
+
+function FormAddFriend({ onAddFriend }) {
+  const [name, setName] = useState("");
+  const [image, setImage] = useState("https://i.pravatar.cc/48");
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    if (!name || !image) return;
+
+    const id = crypto.randomUUID();
+    const newFriend = {
+      id,
+      name,
+      image: `${image}?u=${id}`,
+      balance: 0,
+    };
+
+    onAddFriend(newFriend);
+    setImage("https://i.pravatar.cc/48");
+    setName("");
+  }
+
   return (
-    <form className="form-add-friend">
+    <form className="form-add-friend" onSubmit={handleSubmit}>
       <label>🧑‍🤝‍🧑Name</label>
-      <input type="text" />
+      <input
+        type="text"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
 
       <label>🌇Image URL</label>
-      <input type="text" />
+      <input
+        type="text"
+        value={image}
+        onChange={(e) => setImage(e.target.value)}
+      />
       <Button>Add</Button>
     </form>
   );
