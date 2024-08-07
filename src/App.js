@@ -21,18 +21,34 @@ const initialFriends = [
   },
 ];
 export default function App() {
+  const [showAddFriend, setShowAddFriend] = useState(false);
+  function handleAddFriend() {
+    setShowAddFriend((showAddFriend) => !showAddFriend);
+  }
   return (
-    <div className="app">
-      <div className="sidebar">
-        <FriendsList />
-        <FormAddFriend />
-        <Button>Add Friend</Button>
+    <>
+      <h1>Eat-N-Split</h1>
+      <div className="app">
+        <div className="sidebar">
+          <FriendsList />
+          {showAddFriend && <FormAddFriend />}
+          <Button onClick={handleAddFriend}>
+            {showAddFriend === false ? "Add Friend" : "Close"}
+          </Button>
+        </div>
+        <FormSplitBill />
       </div>
-      <FormSplitBill />
-    </div>
+    </>
   );
 }
 
+function Button({ children, onClick }) {
+  return (
+    <button className="button" onClick={onClick}>
+      {children}
+    </button>
+  );
+}
 function FriendsList() {
   const friends = initialFriends;
   return (
@@ -63,9 +79,6 @@ function Friend({ friend }) {
       <Button>Select</Button>
     </li>
   );
-}
-function Button({ children }) {
-  return <button className="button">{children}</button>;
 }
 function FormAddFriend() {
   return (
